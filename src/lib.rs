@@ -68,24 +68,57 @@ pub fn hinge_loss_full(
 pub fn perceptron_single_step_update(
     feature_vector: &[DType],
     label: DType,
-    current_theta: &[DType],
-    current_theta_0: DType
+    theta: &[DType],
+    theta_0: DType
 ) -> (Vec<DType>, DType) {
-    let output = current_theta.iter()
+    let output = theta.iter()
         .zip(feature_vector.iter())
         .map(|(&a, &b)| a * b)
-        .sum::<DType>()+ current_theta_0;
+        .sum::<DType>()+ theta_0;
 
     if label * output <= 1e-7 {
-        let new_theta = current_theta.iter()
+        let new_theta = theta.iter()
             .zip(feature_vector.iter()
                 .map(|&x| x * label)
                 .collect::<Vec<DType>>()
                 .iter())
             .map(|(&a, &b)| a + b)
             .collect();
-        (new_theta, current_theta_0 + label)
+        (new_theta, theta_0 + label)
     } else {
-        (current_theta.to_vec(), current_theta_0)
+        (theta.to_vec(), theta_0)
     }
+}
+
+/// Runs the full perceptron algorithm on a given set of data.
+/// Runs t iterations through the data set: we do not stop early.
+///
+/// Args:
+/// * `feature_matrix` - matrix describing the given data. Each row
+///   represents a single data point.
+/// * `labels` - array where the kth element of the array is the
+///   correct classification of the kth row of the feature matrix.
+/// * `t` - integer indicating how many times the perceptron algorithm
+///   should iterate through the feature matrix.
+///
+/// Returns a tuple containing two values:
+/// * the feature-coefficient parameter `theta` as a numpy array
+///   (found after T iterations through the feature matrix)
+/// * the offset parameter `theta_0` as a floating point number
+///   (found also after T iterations through the feature matrix).
+pub fn perceptron(feature_matrix: &Vec<Vec<DType>>, labels: &[DType], t: usize) -> (Vec<DType>, DType) {
+    let n_sample = feature_matrix.len();
+    let n_feature = feature_matrix[0].len();
+
+    let mut theta = vec![0 as DType; n_feature];
+    let mut theta_0 = 0 as DType;
+
+    for _ in 0..t {
+        for i in 0..n_sample {
+            let feature_vector = &feature_matrix[i];
+            let label = labels[i];
+            (theta, theta_0) = perceptron_single_step_update(feature_vector, label, &theta, theta_0)
+        }
+    }
+    (theta, theta_0)
 }
