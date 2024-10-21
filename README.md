@@ -89,3 +89,52 @@ except that it should return the average values of $\theta$ and $\theta_0$.
 > [!NOTE]
 > Please call `get_order(feature_matrix.shape[0])`, and use the ordering to iterate the feature matrix in each iteration. 
 > In practice, people typically just randomly shuffle indices to do stochastic optimization.
+
+TODO: Add test cases
+
+
+## Pegasos Algorithm
+
+Now you will implement the Pegasos algorithm. 
+For more information, refer to the original paper at [original paper](https://www.notion.so/Automatic-Review-Analyzer-fa12e75898404964aeca1ad1f41db923?pvs=21).
+
+The following pseudocode describes the Pegasos update rule.
+
+$$
+\begin{align*}
+&\textmd{Pegasos update rule}\ \left(x^{(i)}, y^{(i)}, \lambda , \eta , \theta \right):\\
+&\kern1.5em \textbf{if}\ y^{(i)}(\theta \cdot x^{(i)}) \leq 1 \ \textbf{then}\\
+&\kern3em \textbf{update}\ \theta = (1 - \eta \lambda ) \theta + \eta y^{(i)}x^{(i)}\\
+&\kern1.5em\textbf{else}:\\
+&\kern3em \textbf{update}\ \theta = (1 - \eta \lambda ) \theta
+\end{align*}
+$$
+
+The $\eta$ parameter is a decaying factor that will decrease over time. 
+The $\lambda$ parameter is a regularizing parameter.
+
+In this problem, you will need to adapt this update rule to add a bias term ($\theta_0$) to the hypothesis, 
+but take care not to penalize the magnitude of $\theta_0$.
+
+### Pegasos Single Step Update
+This function is very similar to [**Perceptron Single Step Update**](#perceptron-single-step-update), 
+except that it should utilize the Pegasos parameter update rules instead of those for perceptron. 
+The function will also be passed a $\lambda$ and $\eta$ value to use for updates.
+
+The Pegasos algorithm mixes together a few good ideas: 
+regularization, hinge loss, sub-gradient updates, and decaying learning rate.
+
+When using a bias, the bias update for a mistake becomes:
+
+$$
+\theta _0 = \theta _0 + \eta y^{(i)}
+$$
+
+### Full Pegasos Algorithm
+The same feature matrix and labels array were given in [**Full Perceptron Algorithm**](#full-perceptron-algorithm). 
+Also, the $T$, the maximum number of times to iterate through the feature matrix before terminating the algorithm. 
+Initialize $\theta$ and $\theta _0$ to zero. 
+For each update, set $\displaystyle \eta = \frac{1}{\sqrt{t}}$ where
+$t$ is a counter for the number of updates performed so far (between $1$ and $nT$ inclusive).
+This function should return a tuple in which the first element is the final value of $\theta$ and 
+the second element is the value of $\theta _0$.
