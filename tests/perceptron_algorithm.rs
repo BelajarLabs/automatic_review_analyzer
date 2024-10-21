@@ -1,4 +1,4 @@
-use automatic_review_analyzer::{perceptron, perceptron_single_step_update, DType};
+use automatic_review_analyzer::{average_perceptron, perceptron, perceptron_single_step_update, DType};
 
 const EPSILON: DType = 1e-6;
 
@@ -337,6 +337,102 @@ fn perceptron_test_4() {
 
     let exp_result = (vec![0., 2.], 2.);
     let result = perceptron(&feature_matrix, &labels, t);
+
+    assert!(
+        (result.1 - exp_result.1).abs() < EPSILON,
+        "{} is not approximately equal to {}",
+        result.1,
+        exp_result.1
+    );
+    for (i, (&l, &r)) in result.0.iter().zip(exp_result.0.iter()).enumerate() {
+        if (l - r).abs() > EPSILON {
+            panic!(
+                "assertion failed at index {}: `(left ≈ right)`\n  left[{}]: `{:?}`,\n right[{}]: `{:?}`,\n epsilon: `{:?}`",
+                i, i, l, i, r, EPSILON
+            )
+        }
+    }
+}
+#[test]
+fn average_perceptron_test_1() {
+    let feature_matrix = vec![vec![1., 2.]];
+    let labels = [1.];
+    let t = 1;
+
+    let exp_result = (vec![1., 2.], 1.);
+    let result = average_perceptron(&feature_matrix, &labels, t);
+
+    assert!(
+        (result.1 - exp_result.1).abs() < EPSILON,
+        "{} is not approximately equal to {}",
+        result.1,
+        exp_result.1
+    );
+    for (i, (&l, &r)) in result.0.iter().zip(exp_result.0.iter()).enumerate() {
+        if (l - r).abs() > EPSILON {
+            panic!(
+                "assertion failed at index {}: `(left ≈ right)`\n  left[{}]: `{:?}`,\n right[{}]: `{:?}`,\n epsilon: `{:?}`",
+                i, i, l, i, r, EPSILON
+            )
+        }
+    }
+}
+#[test]
+fn average_perceptron_test_2() {
+    let feature_matrix = vec![vec![1., 2.], vec![-1., 0.]];
+    let labels = [1., 1.];
+    let t = 1;
+
+    let exp_result = (vec![-0.5, 1.], 1.5);
+    let result = average_perceptron(&feature_matrix, &labels, t);
+
+    assert!(
+        (result.1 - exp_result.1).abs() < EPSILON,
+        "{} is not approximately equal to {}",
+        result.1,
+        exp_result.1
+    );
+    for (i, (&l, &r)) in result.0.iter().zip(exp_result.0.iter()).enumerate() {
+        if (l - r).abs() > EPSILON {
+            panic!(
+                "assertion failed at index {}: `(left ≈ right)`\n  left[{}]: `{:?}`,\n right[{}]: `{:?}`,\n epsilon: `{:?}`",
+                i, i, l, i, r, EPSILON
+            )
+        }
+    }
+}
+#[test]
+fn average_perceptron_test_3() {
+    let feature_matrix = vec![vec![1., 2.]];
+    let labels = [1.];
+    let t = 2;
+
+    let exp_result = (vec![1., 2.], 1.);
+    let result = average_perceptron(&feature_matrix, &labels, t);
+
+    assert!(
+        (result.1 - exp_result.1).abs() < EPSILON,
+        "{} is not approximately equal to {}",
+        result.1,
+        exp_result.1
+    );
+    for (i, (&l, &r)) in result.0.iter().zip(exp_result.0.iter()).enumerate() {
+        if (l - r).abs() > EPSILON {
+            panic!(
+                "assertion failed at index {}: `(left ≈ right)`\n  left[{}]: `{:?}`,\n right[{}]: `{:?}`,\n epsilon: `{:?}`",
+                i, i, l, i, r, EPSILON
+            )
+        }
+    }
+}
+#[test]
+fn average_perceptron_test_4() {
+    let feature_matrix = vec![vec![1., 2.], vec![-1., 0.]];
+    let labels = [1., 1.];
+    let t = 2;
+
+    let exp_result = (vec![-0.25, 1.5], 1.75);
+    let result = average_perceptron(&feature_matrix, &labels, t);
 
     assert!(
         (result.1 - exp_result.1).abs() < EPSILON,
