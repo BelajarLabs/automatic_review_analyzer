@@ -90,8 +90,6 @@ except that it should return the average values of $\theta$ and $\theta_0$.
 > Please call `get_order(feature_matrix.shape[0])`, and use the ordering to iterate the feature matrix in each iteration. 
 > In practice, people typically just randomly shuffle indices to do stochastic optimization.
 
-TODO: Add test cases
-
 
 ## Pegasos Algorithm
 

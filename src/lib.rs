@@ -237,3 +237,47 @@ pub fn pegasos_single_step_update(
         theta_0 + eta * (is_violation * label),
     )
 }
+
+/// Runs the Pegasos algorithm on a given set of data.
+/// Runs T iterations through the data set, there is no need to worry about stopping early.
+/// For each update, set learning rate = 1/sqrt(t), where t is a counter for the
+/// number of updates performed so far (between 1 and nT inclusive).
+///
+/// Args:
+/// * `feature_matrix` - A matrix describing the given data. Each row represents a single data point.
+/// * `labels` - An array where the kth element of the array is the correct classification of
+///   the kth row of the feature matrix.
+/// * `t` - An integer indicating how many times the algorithm should iterate through
+///   the feature matrix.
+/// * `lambda` - The lambda value being used to update the Pegasos algorithm parameters.
+///
+/// Returns:
+/// a tuple where the first element is an array with the value of the theta,
+/// the linear classification parameter, found after T iterations through the feature matrix and
+/// the second element is a real number with the value of the theta_0,
+/// the offset classification parameter, found after T iterations through the feature matrix.
+pub fn pegasos(
+    feature_matrix: &Vec<Vec<DType>>,
+    labels: &[DType],
+    t: usize,
+    lambda: DType,
+) -> (Vec<DType>, DType) {
+    let n_sample = feature_matrix.len();
+    let n_feature = feature_matrix[0].len();
+    let mut theta = vec![0 as DType; n_feature];
+    let mut theta_0 = 0 as DType;
+    let mut count = 0;
+
+    for _ in 0..t {
+        for i in 0..n_sample {
+            count += 1;
+            let eta = 1 as DType / DType::sqrt(count as f32);
+            let feature_vector = &feature_matrix[i];
+            let label = labels[i];
+            (theta, theta_0) =
+                pegasos_single_step_update(feature_vector, label, lambda, eta, &theta, theta_0);
+        }
+    }
+
+    (theta, theta_0)
+}

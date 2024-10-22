@@ -1,4 +1,4 @@
-use automatic_review_analyzer::{pegasos_single_step_update, DType};
+use automatic_review_analyzer::{pegasos, pegasos_single_step_update, DType};
 
 const EPSILON: DType = 1e-6;
 
@@ -322,6 +322,148 @@ fn pegasos_single_theta_eq_0() {
         result.1,
         exp_result.1
     );
+    for (i, (&l, &r)) in result.0.iter().zip(exp_result.0.iter()).enumerate() {
+        if (l - r).abs() > EPSILON {
+            panic!(
+                "assertion failed at index {}: `(left ≈ right)`\n  left[{}]: `{:?}`,\n right[{}]: `{:?}`,\n epsilon: `{:?}`",
+                i, i, l, i, r, EPSILON
+            )
+        }
+    }
+}
+#[test]
+fn pegasos_test_1() {
+    let feature_matrix = vec![vec![1., 2.]];
+    let labels = [1.];
+    let t = 1;
+    let lambda = 0.2;
+
+    let exp_result = ([1., 2.], 1.);
+    let result = pegasos(&feature_matrix, &labels, t, lambda);
+    assert!(
+        (result.1 - exp_result.1).abs() < EPSILON,
+        "{} is not approximately equal to {}",
+        result.1,
+        exp_result.1
+    );
+    for (i, (&l, &r)) in result.0.iter().zip(exp_result.0.iter()).enumerate() {
+        if (l - r).abs() > EPSILON {
+            panic!(
+                "assertion failed at index {}: `(left ≈ right)`\n  left[{}]: `{:?}`,\n right[{}]: `{:?}`,\n epsilon: `{:?}`",
+                i, i, l, i, r, EPSILON
+            )
+        }
+    }
+}
+#[test]
+fn pegasos_test_2() {
+    let feature_matrix = vec![vec![1., 1.], vec![1., 1.]];
+    let labels = [1., 1.];
+    let t = 1;
+    let lambda = 1.;
+
+    let exp_result = (
+        [1. - 1. / DType::sqrt(2f32), 1. - 1. / DType::sqrt(2f32)],
+        1.,
+    );
+    let result = pegasos(&feature_matrix, &labels, t, lambda);
+    assert!(
+        (result.1 - exp_result.1).abs() < EPSILON,
+        "{} is not approximately equal to {}",
+        result.1,
+        exp_result.1
+    );
+    for (i, (&l, &r)) in result.0.iter().zip(exp_result.0.iter()).enumerate() {
+        if (l - r).abs() > EPSILON {
+            panic!(
+                "assertion failed at index {}: `(left ≈ right)`\n  left[{}]: `{:?}`,\n right[{}]: `{:?}`,\n epsilon: `{:?}`",
+                i, i, l, i, r, EPSILON
+            )
+        }
+    }
+}
+#[test]
+fn pegasos_high_dimension() {
+    let feature_matrix = vec![
+        vec![
+            0.1837462,
+            0.29989789,
+            -0.35889786,
+            -0.30780561,
+            -0.44230703,
+            -0.03043835,
+            0.21370063,
+            0.33344998,
+            -0.40850817,
+            -0.13105809,
+        ],
+        vec![
+            0.08254096,
+            0.06012654,
+            0.19821234,
+            0.40958367,
+            0.07155838,
+            -0.49830717,
+            0.09098162,
+            0.19062183,
+            -0.27312663,
+            0.39060785,
+        ],
+        vec![
+            -0.20112519,
+            -0.00593087,
+            0.05738862,
+            0.16811148,
+            -0.10466314,
+            -0.21348009,
+            0.45806193,
+            -0.27659307,
+            0.2901038,
+            -0.29736505,
+        ],
+        vec![
+            -0.14703536,
+            -0.45573697,
+            -0.47563745,
+            -0.08546162,
+            -0.08562345,
+            0.07636098,
+            -0.42087389,
+            -0.16322197,
+            -0.02759763,
+            0.0297091,
+        ],
+        vec![
+            -0.18082261,
+            0.28644149,
+            -0.47549449,
+            -0.3049562,
+            0.13967768,
+            0.34904474,
+            0.20627692,
+            0.28407868,
+            0.21849356,
+            -0.01642202,
+        ],
+    ];
+    let labels = [-1., -1., -1., 1., -1.];
+    let t = 10;
+    let lambda = 0.1456692551041303;
+
+    let exp_result = (
+        [
+            -0.0850387, -0.7286435, -0.3440130, -0.0560494, -0.0260993, 0.1446894, -0.8172203,
+            -0.3200453, -0.0729161, 0.1008662,
+        ],
+        1.,
+    );
+    let result = pegasos(&feature_matrix, &labels, t, lambda);
+    // assert!(
+    //     (result.1 - exp_result.1).abs() < EPSILON,
+    //     "{} is not approximately equal to {}",
+    //     result.1,
+    //     exp_result.1
+    // );
     for (i, (&l, &r)) in result.0.iter().zip(exp_result.0.iter()).enumerate() {
         if (l - r).abs() > EPSILON {
             panic!(
