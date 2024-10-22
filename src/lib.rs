@@ -192,3 +192,48 @@ pub fn average_perceptron(
         .collect::<Vec<DType>>();
     (new_theta, theta_0_sum / all_iter)
 }
+
+/// Updates the classification parameters `theta` and `theta_0`
+/// via a single step of the Pegasos algorithm.
+/// Returns new parameters rather than modifying in-place.
+///
+/// Args:
+/// * `feature_vector` - An array describing a single data point.
+/// * `label` - The correct classification of the feature vector.
+/// * `lambda` - The lambda value being used to update the parameters.
+/// * `eta` - Learning rate to update parameters.
+/// * `theta` - The old theta being used by the Pegasos algorithm before this update.
+/// * `theta_0` - The old theta_0 being used by the Pegasos algorithm before this update.
+///
+/// Returns:
+/// a tuple where the first element is an array with the value of theta after
+/// the old update has completed and the second element is a real valued number with
+///  the value of `theta_0` after the old updated has completed.
+pub fn pegasos_single_step_update(
+    feature_vector: &[DType],
+    label: DType,
+    lambda: DType,
+    eta: DType,
+    theta: &[DType],
+    theta_0: DType,
+) -> (Vec<DType>, DType) {
+    let margin_factor = label
+        * (feature_vector
+            .iter()
+            .zip(theta.iter())
+            .map(|(&a, &b)| a * b)
+            .sum::<DType>()
+            + theta_0);
+    let one = 1 as DType;
+    let zero = 0 as DType;
+    let is_violation = if margin_factor <= one { one } else { zero };
+
+    (
+        theta
+            .iter()
+            .zip(feature_vector.iter())
+            .map(|(&t, &f)| t + eta * (is_violation * label * f - lambda * t))
+            .collect::<Vec<DType>>(),
+        theta_0 + eta * (is_violation * label),
+    )
+}
